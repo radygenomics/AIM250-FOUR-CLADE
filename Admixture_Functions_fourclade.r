@@ -67,7 +67,7 @@ Admixture_modifyVCF <- function(inputFiles, outputName, threads = 1, temp, AIM25
 
 
 ###VCF files convert ot Struture
-Admixture_VCF2Structure<-function(vcf1 = "UT-250AIMs_1000genome.vcf",vcf2=NULL,PopCode_data = "1000G_1652_PopCode",GT_mergeTable=FALSE,outputName){
+Admixture_VCF2Structure<-function(vcf1 = "AIM250_899genome.vcf",vcf2=NULL,PopCode_data = "1000G_1652_PopCode",GT_mergeTable=FALSE,outputName){
   library(vcfR)
   library(SNPlocs.Hsapiens.dbSNP.20120608)
   
@@ -193,7 +193,7 @@ Admixture_VCF2Structure<-function(vcf1 = "UT-250AIMs_1000genome.vcf",vcf2=NULL,P
   for (i in 1:nrow(temp1)) { for(j in 1:ncol(temp1)){
     temp2[i,j] <- sapply(switch(temp1[i,j],"1"=filenames$ALT[i],"0"=filenames$REF[i],"."="."),as.character)
   }
-    if(i %%100 == 0) {print( i )}
+    if(i %% 50 == 0) {print( i )}
   }
   
   #genotype convert to number
@@ -202,7 +202,7 @@ Admixture_VCF2Structure<-function(vcf1 = "UT-250AIMs_1000genome.vcf",vcf2=NULL,P
     if(nchar(temp2[i,j]) == 1){temp3[i,j] <- switch(temp2[i,j],"A"=1,"T"=2,"G"=3,"C"=4,"."=-9)}else 
       if(nchar(temp2[i,j]) > 1){temp3[i,j] <- nchar(temp2[i,j])+4 }else{}
   }
-    if(i %% 100 == 0) {print( i )}
+    #if(i %% 50 == 0) {print( i )}
   } 
   
   if(sum(grepl("rs[[:digit:]]",filenames$ID)) == nrow(filenames)){  
@@ -243,7 +243,7 @@ Admixture_VCF2Structure<-function(vcf1 = "UT-250AIMs_1000genome.vcf",vcf2=NULL,P
   for (i in 1:nrow(PopGroup)) { if(sum(PopGroup[i,1] == PopCode$sample) == 1){
     PopGroup[i,2] <- sapply(switch(PopCode$super_pop[which(PopGroup[i,1] == PopCode$sample)],"AFR" = 1,"EUR" = 2,"EAS" = 3,"AMR" = 4,"SAS" = 5),as.character)
   }else{PopGroup[i,2] <- 10}
-    if(i %% 100 == 0) {  print( i ) }
+    if(i %% 50 == 0) {  print( i ) }
   }
   
   EMP <- data.frame(matrix(data = "",nrow = 1,ncol = 2),stringsAsFactors = FALSE)
@@ -297,7 +297,7 @@ Admixture_gt2PCAformat<-function(InputFile,PopCode_data,genotype_start_column=1,
                                   ".|." = NA)
         
       }
-      if(i %%100 == 0) {print( i )}
+      #if(i %%100 == 0) {print( i )}
       
     }}else{
       for (i in 1:nrow(filenames)) {for(j in 1:ncol(filenames)){
@@ -309,7 +309,7 @@ Admixture_gt2PCAformat<-function(InputFile,PopCode_data,genotype_start_column=1,
                                   "./." = NA)
         
       }
-        if(i %%100 == 0) {print( i )}
+        #if(i %%100 == 0) {print( i )}
         
       }
       
@@ -329,7 +329,7 @@ Admixture_gt2PCAformat<-function(InputFile,PopCode_data,genotype_start_column=1,
     PopGroup[i,2] <- PopCode$super_pop[which(PopGroup[i,1] == PopCode$sample)]
   }else{PopGroup[i,2] <- "Other"}
     
-    if(i %% 100 == 0) {print( i )}
+    #if(i %% 100 == 0) {print( i )}
     
   }
   cat("Convert to PCA_format finished!","\n")
@@ -340,7 +340,7 @@ Admixture_gt2PCAformat<-function(InputFile,PopCode_data,genotype_start_column=1,
   return(PCA_format)
 }
 
-Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EUR = 2,EAS = 3, AFR = 4,SAS = 5,Other = 10,"all"), figFileName){
+Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EUR = 2,EAS = 3, AMR = 4,SAS = 5,Other = 10,"all"), figFileName){
   library(ggplot2)
   library(missMDA)
   library(ade4)
@@ -349,7 +349,7 @@ Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EU
   if(!require(missMDA)) stop("Missing missMDA package")
   if(!require(ade4)) stop("Missing ade4 package")
   
-  group.colors <- c(AFR = "#FF7300",EUR = "#00FF00",EAS = "#0000FF",Other = "black")
+  group.colors <- c(AFR = "#FF7300",EUR = "#00FF00",EAS="#0000FF",AMR="#808080",Other="black")
   
   if(sum(tolower(PopSelect) == "all") == 1){
     
@@ -369,9 +369,9 @@ Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EU
       scale_colour_manual(name  = "Populations",breaks = unique(scores$Pop),values = group.colors)+
       xlab("PC1") +
       ylab("PC2") +
-      ggtitle(paste0(figFileName,"_UT-250AIMs_PCA_Plot"))
+      ggtitle(paste0(figFileName,"_AIM250_PCA_Plot"))
     
-    pdf(paste0( figFileName,"_UT-250AIMs_PCA_Plot"),paper = "letter")
+    pdf(paste0( figFileName,"_AIM250_PCA_Plot"),paper = "letter")
     print(p)
     dev.off()
     
@@ -392,9 +392,9 @@ Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EU
       scale_colour_manual(name  = "Populations",breaks = unique(scores$Pop),values = group.colors)+
       xlab("PC1") +
       ylab("PC2") +
-      ggtitle(paste0( figFileName,"_UT-250AIMs_PCA_Plot"))
+      ggtitle(paste0( figFileName,"_AIM250_PCA_Plot"))
     
-    pdf(paste0( figFileName,"_UT-250AIMs_PCA_Plot"),paper = "letter")
+    pdf(paste0( figFileName,"_AIM250_PCA_Plot"),paper = "letter")
     print(p)
     dev.off()
     
@@ -405,7 +405,7 @@ Admixture_PCAplot_noMissingValue <- function(PCAformat, PopSelect = c(AFR = 1,EU
 }
 
 
-Admixture_PCAplot_MissingValue <- function(PCAformat, PopSelect = c(AFR = 1, EUR = 2, EAS = 3, AFR = 4, SAS = 5,Other = 10,"all")
+Admixture_PCAplot_MissingValue <- function(PCAformat, PopSelect = c(AFR = 1, EUR = 2, EAS = 3, AMR = 4, SAS = 5,Other = 10,"all")
                                            ,  figFileName){
   library(ggplot2)
   library(missMDA)
@@ -415,7 +415,7 @@ Admixture_PCAplot_MissingValue <- function(PCAformat, PopSelect = c(AFR = 1, EUR
   if(!require(missMDA)) stop("Missing missMDA package")
   if(!require(ade4)) stop("Missing ade4 package")
   
-  group.colors <- c(AFR = "#FF7300",EUR = "#00FF00",EAS = "#0000FF",Other = "black")
+  group.colors <- c(AFR = "#FF7300",EUR = "#00FF00",EAS="#0000FF",AMR="#808080",Other="black")
   
   df <- PCAformat
   #df <- read.table(PCAformat,header = TRUE, sep = "\t", stringsAsFactors = FALSE)
@@ -439,11 +439,11 @@ Admixture_PCAplot_MissingValue <- function(PCAformat, PopSelect = c(AFR = 1, EUR
       scale_colour_manual(name  ="Populations",breaks = unique(scores$Pop),values = group.colors )+
       xlab("PC1")+
       ylab("PC2")+
-      ggtitle(paste0( unlist(strsplit(figFileName,"/"))[2],"_UT-250AIMs_PCA_Plot"))
+      ggtitle(paste0( unlist(strsplit(figFileName,"/"))[2],"_AIM250_PCA_Plot"))
     
     q <- p+geom_point(data = scores[which(scores$Pop == "Other"),], color = "black" , size = 3 )+
       geom_text(data = scores[which(scores$Pop == "Other"),],aes(label = scores$Individuals[which(scores$Pop == "Other")], color = scores$Pop[which(scores$Pop == "Other")]),check_overlap = TRUE,hjust = 0, nudge_x = 0.5)
-    pdf(paste0( figFileName,"_UT-250AIMs_PCA_Plot.pdf"),paper = "letter")
+    pdf(paste0( figFileName,"_AIM250_PCA_Plot.pdf"),paper = "letter")
     print(q)
     dev.off()
     
@@ -468,12 +468,12 @@ Admixture_PCAplot_MissingValue <- function(PCAformat, PopSelect = c(AFR = 1, EUR
       scale_colour_manual(name  ="Populations",breaks = unique(scores$Pop),values = group.colors )+
       xlab("PC1")+
       ylab("PC2")+
-      ggtitle(paste0( unlist(strsplit(figFileName,"/"))[2],"_UT-250AIMs_PCA_Plot"))
+      ggtitle(paste0( unlist(strsplit(figFileName,"/"))[2],"_AIM250_PCA_Plot"))
     
     q <- p+geom_point(data = scores[which(scores$Pop == "Other"),], color = "black" , size = 3 )+
       geom_text(data = scores[which(scores$Pop == "Other"),],aes(label = scores$Individuals[which(scores$Pop == "Other")], color = scores$Pop[which(scores$Pop == "Other")]),check_overlap = TRUE,hjust = 0, nudge_x = 0.5)
     
-    pdf(paste0( figFileName,"_UT-250AIMs_PCA_Plot.pdf"),paper = "letter")
+    pdf(paste0( figFileName,"_AIM250_PCA_Plot.pdf"),paper = "letter")
     print(q)
     dev.off()
     
@@ -494,7 +494,9 @@ Admixture_InputStr <- function(Input_Str = "str.txt",Str_Path, Output_Str = "str
   cat("No. of AIMs:",no_AIM,"\n")
   
   setwd(Str_Path)
-  CMD<-paste0("./structure -m mainparams -e extraparams -L ",no_AIM," -N ",People," -K 3 -i ",paste(path,Input_Str, sep = "/")," -o ",paste(path,Output_Str,sep = "/"))
+  CMD<-paste0("./structure -m mainparams -e extraparams -L ",no_AIM," -N ",People," -K 4 -i ",paste(path,Input_Str, sep = "/")," -o ",paste(path,Output_Str,sep = "/"))
+  system(CMD)
+  CMD<-paste0("./reformat_f.pl ",paste(path,Output_Str,sep = "/"),"_f") # my fast output re-formatter script
   system(CMD)
   
   cat(paste0(no_AIM,"AIMs"),"Structure Finished! \n")
@@ -505,10 +507,10 @@ Admixture_InputStr <- function(Input_Str = "str.txt",Str_Path, Output_Str = "str
 #Structure output modify
 #distinguish Pop and group
 
-Admixture_StrOut <- function(Output_Str = "str_output.txt_f",PopGroup = c("AFR","EUR","EAS","Other"),K_value = 3, fileName = "Summary.txt"){
+Admixture_StrOut <- function(Output_Str = "str_output.txt_f",PopGroup = c("AFR","EUR","EAS","AMR","Other"),K_value = 4, fileName = "Summary.txt"){
   StrOut_File <- read.delim(Output_Str,stringsAsFactors = FALSE)
   
-  n = which(StrOut_File[,1] == " Pop       1      2      3      Individuals")
+  n = which(StrOut_File[,1] == " Pop       1      2      3      4      Individuals")
   
   Col_title = unlist(strsplit(StrOut_File[n,1],split = " "))
   
@@ -532,7 +534,7 @@ Admixture_StrOut <- function(Output_Str = "str_output.txt_f",PopGroup = c("AFR",
 
 
 #seperate Frequency from structure output file
-Admixture_StrOut_Frequency <- function(Output_Str,PopGroup = c("AFR","EUR","EAS","Other"),K_value = 3,PopCluster = "Summary.txt"
+Admixture_StrOut_Frequency <- function(Output_Str,PopGroup = c("AFR","EUR","EAS","AMR","Other"),K_value = 4,PopCluster = "Summary.txt"
                                        , fileName = "Frequency.txt"){
   StrOut_File <- read.delim(Output_Str,stringsAsFactors = FALSE)
   
@@ -547,7 +549,7 @@ Admixture_StrOut_Frequency <- function(Output_Str,PopGroup = c("AFR","EUR","EAS"
   for (i in 1:sum(PopCluster$Individuals)) {
     Individual_Frequency[i,] <- unlist(strsplit(StrOut_File[(m+i),1],split = " "))[!nchar(unlist(strsplit(StrOut_File[(m+i),1],split = " "))) == 0]
     
-    if(i %/% 100){print(i)}
+    #if(i %% 100){print(i)}
     
   }
   
@@ -567,7 +569,7 @@ Admixture_ProportionPlot <- function(Str_frq, figSample = TRUE, sample_info,  fi
   library(ggplot2)
   library(reshape)
   library(dplyr)
-  group.colors <- c(AFR="#FF7300",EUR="#00FF00",EAS="#0000FF")
+  group.colors <- c(AFR="#FF7300",EUR="#00FF00",EAS="#0000FF",AMR="#808080")
   
   df <- read.table(Str_frq,sep = '\t',stringsAsFactors = FALSE)
   
@@ -577,7 +579,7 @@ Admixture_ProportionPlot <- function(Str_frq, figSample = TRUE, sample_info,  fi
     df_1 <- df[which(df$Pop.== 10),-c(1,3,4)]
     df_1$Label <- factor(df_1$Label,levels = df_1$Label)
     df_2 <- melt(df_1,id='Label')
-    df_2$variable <- factor(df_2$variable,levels = c("AFR","EUR","EAS"))
+    df_2$variable <- factor(df_2$variable,levels = c("AFR","EUR","EAS","AMR"))
     df_3 <- df_2[order(df_2$variable),]
     
     
@@ -585,9 +587,9 @@ Admixture_ProportionPlot <- function(Str_frq, figSample = TRUE, sample_info,  fi
       geom_bar( stat ="identity", position = "fill") +
       xlab('Individuals') +
       ylab('Percentage') +
-      ggtitle("UT-AIM250_ProportionPlot")+
-      scale_fill_manual(breaks = c("AFR", "EUR","EAS"),values = group.colors) +
-      scale_colour_discrete(name  ="Populations",breaks=c("AFR", "EUR","EAS"),labels=c("African", "European","East Asian")) +
+      ggtitle("AIM250_ProportionPlot")+
+      scale_fill_manual(breaks = c("AFR", "EUR","EAS","AMR"),values = group.colors) +
+      scale_colour_discrete(name  ="Populations",breaks=c("AFR", "EUR","EAS","AMR"),labels=c("African", "European","East Asian","American")) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
     pdf(paste0(figFileName,"_ProportionPlot.pdf"),paper = "letter")
@@ -603,21 +605,23 @@ Admixture_ProportionPlot <- function(Str_frq, figSample = TRUE, sample_info,  fi
     EUR <- EUR[order(EUR$EUR),]
     EAS <- df[which(df$Pop.== 3),]
     EAS <- EAS[order(EAS$EAS),]
-    df_1 <- rbind(AFR,EUR,EAS)
+    AMR <- df[which(df$Pop.== 4),]
+    AMR <- AMR[order(AMR$AMR),]
+    df_1 <- rbind(AFR,EUR,EAS,AMR)
     df_1 <- df_1[,-c(1,3,4)]
     df_1$Label <- factor(df_1$Label,levels = df_1$Label)
     
     df_2 <- melt(df_1,id = 'Label')
-    df_2$variable <- factor(df_2$variable,levels = c("AFR","EUR","EAS"))
+    df_2$variable <- factor(df_2$variable,levels = c("AFR","EUR","EAS","AMR"))
     df_3 <- df_2[order(df_2$variable),]
     
     p <- ggplot(df_3, aes(fill = variable, y = value, x = Label)) + 
       geom_bar( stat ="identity", position ="fill") +
       xlab('Individuals') +
       ylab('Percentage') +
-      ggtitle("UT-AIM250_1000G_ProportionPlot") +
-      scale_fill_manual(breaks = c("AFR", "EUR","EAS"),values=group.colors) +
-      scale_colour_discrete(name  = "Population",breaks = c("AFR", "EUR","EAS"),labels = c("African", "European","East Asian")) +
+      ggtitle("AIM250_1000G_ProportionPlot") +
+      scale_fill_manual(breaks = c("AFR", "EUR","EAS","AMR"),values=group.colors) +
+      scale_colour_discrete(name  = "Population",breaks = c("AFR", "EUR","EAS","AMR"),labels = c("African", "European","East Asian","American")) +
       theme(axis.text.x = element_text(angle = 90, hjust = 1))
     
     pdf(paste0(figFileName,"_1000G_ProportionPlot.pdf"),paper = "letter")
@@ -631,7 +635,7 @@ Admixture_ProportionPlot <- function(Str_frq, figSample = TRUE, sample_info,  fi
 
 #Triangle plot
 Admixture_TrianglePlot <- function(Str_frq,figFileName = "TrianglePlot.pdf", PopCode_data){
-  group.colors <- c(AFR="#FF7300",EUR="#00FF00",EAS="#0000FF",Other="black")
+  group.colors <- c(AFR="#FF7300",EUR="#00FF00",EAS="#0000FF",AMR="#808080",Other="black")
   library(ggtern)
   df <- Str_frq
   df_1 <- df[,-2]
@@ -646,12 +650,12 @@ Admixture_TrianglePlot <- function(Str_frq,figFileName = "TrianglePlot.pdf", Pop
       df_1$Pop[i] <- PopCode$super_pop[which(rownames(df_1)[i] == PopCode$sample)]
       
     }else{df_1$Pop[i] <- "Other"}
-    if(i %% 100 == 0) {print( i)}
+    #if(i %% 50 == 0) {print( i)}
     
   }
   
-  df_1$Pop <- factor(df_1$Pop,levels = c("AFR","EUR","EAS","Other"))
-  p <- ggtern(data = df_1, aes(x = AFR, y = EAS, z = EUR)) + #define data sources
+  df_1$Pop <- factor(df_1$Pop,levels = c("AFR","EUR","EAS","AMR","Other"))
+  p <- ggtern(data = df_1, aes(x = AFR, y = AMR, z = EUR)) + #define data sources
     geom_point(aes(colour = Pop)) +  #define data geometry
     scale_colour_manual(values = group.colors)+
     ggtitle(paste0( unlist(strsplit(figFileName,"/"))[2],"_trianglePlot"))
